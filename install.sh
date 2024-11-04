@@ -79,7 +79,6 @@ while [ $# -gt 0 ]; do
     VERSION_LATEST=1
     ;;
   --swoole-version)
-
     if test -n "$2"; then
       X_SWOOLE_VERSION="$2"
     fi
@@ -273,6 +272,13 @@ install_php_ext_swoole_dependent_library() {
     brew install c-ares libpq unixodbc brotli curl pcre2
     ;;
   Linux)
+    LINUX_VERSION=$(uname -r | cut -d '-' -f 1)
+    LINUX_MAJOR_VERSION=$(echo $LINUX_VERSION | cut -d '.' -f 1)
+    LINUX_MINIO_VERSION=$(echo $LINUX_VERSION | cut -d '.' -f 2)
+    LINUX_KERNEL_SUPPORT_IO_URING_FEATURE=0
+    if test $LINUX_MAJOR_VERSION >6 || (test $LINUX_MAJOR_VERSION = 6 && test $LINUX_MAJOR_VERSION 7 >=); then
+      LINUX_KERNEL_SUPPORT_IO_URING_FEATURE=1
+    fi
     OS_RELEASE="$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '\n' | tr -d '\"')"
     case "$OS_RELEASE" in
     'rocky' | 'almalinux' | 'alinux' | 'anolis' | 'fedora' | 'openEuler' | 'hce') # |  'amzn' | 'ol' | 'rhel' | 'centos'  # 未测试
