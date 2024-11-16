@@ -538,6 +538,7 @@ install_php_ext_swoole() {
 
   ./configure --help
 
+# --enable-swoole-pgsql \
   ./configure \
     --with-php-config="${PHP_CONFIG}" \
     ${SWOOLE_DEBUG_OPTIONS} \
@@ -547,7 +548,6 @@ install_php_ext_swoole() {
     --enable-cares \
     --enable-swoole-curl \
     ${SWOOLE_OPTIONS} \
-    --enable-swoole-pgsql \
     --enable-swoole-sqlite \
     ${SWOOLE_ODBC_OPTIONS} \
     ${SWOOLE_IO_URING} \
