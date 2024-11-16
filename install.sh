@@ -511,6 +511,7 @@ install_php_ext_swoole() {
       else
         if test ${LINUX_KERNEL_SUPPORT_IO_URING_FEATURE} -eq 1 ; then
           SWOOLE_IO_URING=' --enable-iouring '
+          SWOOLE_IO_URING=''
         fi
       fi
 
