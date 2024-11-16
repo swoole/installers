@@ -276,6 +276,7 @@ install_php_ext_swoole_dependent_library() {
     LINUX_MAJOR_VERSION=$(echo $LINUX_VERSION | cut -d '.' -f 1)
     LINUX_MINIO_VERSION=$(echo $LINUX_VERSION | cut -d '.' -f 2)
     LINUX_KERNEL_SUPPORT_IO_URING_FEATURE=0
+    # shellcheck disable=SC2210
     if test $LINUX_MAJOR_VERSION >6 || (test $LINUX_MAJOR_VERSION = 6 && test $LINUX_MAJOR_VERSION 7 >=); then
       LINUX_KERNEL_SUPPORT_IO_URING_FEATURE=1
     fi
@@ -508,7 +509,9 @@ install_php_ext_swoole() {
       if test -f /.dockerenv -a -x "$(which docker-php-source)" -a -x "$(which docker-php-ext-enable)"; then
         SWOOLE_IO_URING=' '
       else
-        SWOOLE_IO_URING=' --enable-iouring '
+        if test ${LINUX_KERNEL_SUPPORT_IO_URING_FEATURE} -eq 1 ; then
+          SWOOLE_IO_URING=' --enable-iouring '
+        fi
       fi
 
       SWOOLE_ODBC_OPTIONS="--with-swoole-odbc=unixODBC,/usr"
