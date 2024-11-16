@@ -290,6 +290,7 @@ install_php_ext_swoole_dependent_library() {
       yum install -y autoconf automake libtool cmake bison gettext zip unzip xz
       yum install -y pkg-config bzip2 flex which
       yum install -y c-ares-devel libcurl-devel pcre-devel postgresql-devel unixODBC brotli-devel sqlite-devel openssl-devel
+      yum install -y bc
 
       ;;
     'debian' | 'ubuntu' | 'kali')
@@ -307,6 +308,7 @@ install_php_ext_swoole_dependent_library() {
       apt-get install -y libc-ares-dev libcurl4-openssl-dev
       apt-get install -y libpcre3 libpcre3-dev libpq-dev libsqlite3-dev unixodbc-dev
       apt-get install -y libbrotli-dev liburing-dev
+      apt-get install -y bc
 
       ;;
     'alpine')
