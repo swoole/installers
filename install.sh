@@ -274,10 +274,10 @@ install_php_ext_swoole_dependent_library() {
   Linux)
     LINUX_VERSION=$(uname -r | cut -d '-' -f 1)
     LINUX_MAJOR_VERSION=$(echo $LINUX_VERSION | cut -d '.' -f 1)
-    LINUX_MINIO_VERSION=$(echo $LINUX_VERSION | cut -d '.' -f 2)
+    LINUX_MINOR_VERSION=$(echo $LINUX_VERSION | cut -d '.' -f 2)
     LINUX_KERNEL_SUPPORT_IO_URING_FEATURE=0
     # shellcheck disable=SC2210
-    if test $LINUX_MAJOR_VERSION >6 || (test $LINUX_MAJOR_VERSION = 6 && test $LINUX_MAJOR_VERSION 7 >=); then
+    if test $LINUX_MAJOR_VERSION -gt 6 || (test $LINUX_MAJOR_VERSION -eq 6 && test $LINUX_MINOR_VERSION -ge 7); then
       LINUX_KERNEL_SUPPORT_IO_URING_FEATURE=1
     fi
     OS_RELEASE="$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '\n' | tr -d '\"')"
@@ -292,6 +292,7 @@ install_php_ext_swoole_dependent_library() {
       yum install -y pkg-config bzip2 flex which
       yum install -y c-ares-devel libcurl-devel pcre-devel postgresql-devel unixODBC brotli-devel sqlite-devel openssl-devel
       yum install -y bc
+      yum install -y liburing
 
       ;;
     'debian' | 'ubuntu' | 'kali')
@@ -483,23 +484,37 @@ install_php_ext_swoole() {
 
   case "$OS" in
   Darwin)
+    BREW_PREFIX=$(echo $(brew --prefix) | tr -d '\n')
     case "$ARCH" in
     x86_64)
-      export PKG_CONFIG_PATH=/usr/local/opt/libpq/lib/pkgconfig/:/usr/local/opt/unixodbc/lib/pkgconfig/
-      SWOOLE_ODBC_OPTIONS="--with-swoole-odbc=unixODBC,/usr/local/opt/unixodbc/"
+      export PKG_CONFIG_PATH=${BREW_PREFIX}/opt/libpq/lib/pkgconfig/:${BREW_PREFIX}/opt/unixodbc/lib/pkgconfig/
+      SWOOLE_ODBC_OPTIONS="--with-swoole-odbc=unixODBC,${BREW_PREFIX}/opt/unixodbc/"
       ;;
     arm64)
-      export PKG_CONFIG_PATH=/opt/homebrew/opt/libpq/lib/pkgconfig/:/opt/homebrew/opt/unixodbc/lib/pkgconfig/
+      export PKG_CONFIG_PATH=${BREW_PREFIX}/opt/libpq/lib/pkgconfig/:${BREW_PREFIX}/opt/unixodbc/lib/pkgconfig/
       # /opt/homebrew/opt/pcre2/lib/pkgconfig
       # export PATH=/opt/homebrew/opt/pcre2/bin/:$PATH
       php-config --prefix
-      ln -s /opt/homebrew/opt/pcre2/include/pcre2.h $(php-config --prefix)/include/php/ext/pcre/pcre2.h
+      ln -s ${BREW_PREFIX}/opt/pcre2/include/pcre2.h $(php-config --prefix)/include/php/ext/pcre/pcre2.h
 
-      SWOOLE_ODBC_OPTIONS="--with-swoole-odbc=unixODBC,/opt/homebrew/opt/unixodbc/"
+      SWOOLE_ODBC_OPTIONS="--with-swoole-odbc=unixODBC,${BREW_PREFIX}/opt/unixodbc/"
       ;;
     esac
     ;;
   Linux)
+    HAVE_IOURING_FUTEX=0
+    if test ${LINUX_KERNEL_SUPPORT_IO_URING_FEATURE} -eq 1; then
+      {
+        URING_VERSION=$(pkg-config --modversion liburing)
+        IOURING_MAJOR_VERSION=$(echo $URING_VERSION | cut -d '.' -f 1)
+        IOURING_MINOR_VERSION=$(echo $URING_VERSION | cut -d '.' -f 2)
+        if test $IOURING_MAJOR_VERSION -gt 2 || (test $IOURING_MAJOR_VERSION -eq 2 && test $IOURING_MINOR_VERSION -ge 6); then
+          HAVE_IOURING_FUTEX=1
+        fi
+      } || {
+        echo $?
+      }
+    fi
     OS_RELEASE="$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '\n' | tr -d '\"')"
     case "$OS_RELEASE" in
     'rocky' | 'almalinux' | 'alinux' | 'anolis' | 'fedora' | 'openEuler' | 'hce') # |  'amzn' | 'ol' | 'rhel' | 'centos'  # 未测试
@@ -509,9 +524,8 @@ install_php_ext_swoole() {
       if test -f /.dockerenv -a -x "$(which docker-php-source)" -a -x "$(which docker-php-ext-enable)"; then
         SWOOLE_IO_URING=' '
       else
-        if test ${LINUX_KERNEL_SUPPORT_IO_URING_FEATURE} -eq 1 ; then
+        if test ${HAVE_IOURING_FUTEX} -eq 1; then
           SWOOLE_IO_URING=' --enable-iouring '
-          SWOOLE_IO_URING=''
         fi
       fi
 
@@ -539,7 +553,7 @@ install_php_ext_swoole() {
 
   ./configure --help
 
-# --enable-swoole-pgsql \
+  # --enable-swoole-pgsql \
   ./configure \
     --with-php-config="${PHP_CONFIG}" \
     ${SWOOLE_DEBUG_OPTIONS} \
