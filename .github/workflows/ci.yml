@@ -61,7 +61,7 @@ jobs:
     strategy:
       matrix:
         macos_version:
-          - macos-12
+        #  - macos-12
           - macos-13
           - macos-14
     steps:
