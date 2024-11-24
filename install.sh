@@ -522,8 +522,6 @@ install_php_ext_swoole() {
       ;;
     'debian' | 'ubuntu' | 'kali') # 'raspbian' | 'deeping'| 'uos' | 'kylin'
       if test -f /.dockerenv -a -x "$(which docker-php-source)" -a -x "$(which docker-php-ext-enable)"; then
-        SWOOLE_IO_URING=' '
-      else
         if test ${HAVE_IOURING_FUTEX} -eq 1; then
           SWOOLE_IO_URING=' --enable-iouring '
         fi
