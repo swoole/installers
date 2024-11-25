@@ -37,10 +37,10 @@ jobs:
           - archlinux:latest
           - php:8.3-zts-alpine3.20
           - php:8.2-zts-alpine3.20
-#          - php:8.1-zts-alpine3.20
+          - php:8.1-zts-alpine3.20
 #          - php:8.1-zts-bullseye
-          - php:8.2-zts-bullseye
-          - php:8.3-zts-bullseye
+#          - php:8.2-zts-bullseye
+#          - php:8.3-zts-bullseye
 
     steps:
       - uses: actions/checkout@v4
