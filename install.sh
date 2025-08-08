@@ -261,7 +261,7 @@ check_php_and_install_php() {
 
 }
 
-install_php_ext_swoole_dependent_library() {
+install_swoole_dep_lib() {
   case "$OS" in
   Darwin | darwin)
     export HOMEBREW_NO_ANALYTICS=1
@@ -339,7 +339,7 @@ install_php_ext_swoole_dependent_library() {
   esac
 }
 
-install_php_ext_swoole_dependent_ext() {
+install_swoole_dep_ext() {
   # swoole 依赖 openssl  、curl、 sockets、 pdo  扩展
   local EXTENSION_OPENSSL_EXISTS=0
   local EXTENSION_CURL_EXISTS=0
@@ -413,7 +413,7 @@ EOF
 
 }
 
-install_php_ext_swoole() {
+install_swoole() {
 
   local SWOOLE_OPTIONS=''
 
@@ -799,9 +799,9 @@ EOF
 install() {
   check_php_and_install_php
   if test ${INSTALL_PHP} -eq 1; then
-    install_php_ext_swoole_dependent_library
-    install_php_ext_swoole_dependent_ext
-    install_php_ext_swoole
+    install_swoole_dep_lib
+    install_swoole_dep_ext
+    install_swoole
 
     if test ${INSTALL_PHPY} -eq 1; then
       check_python3_and_install_python3

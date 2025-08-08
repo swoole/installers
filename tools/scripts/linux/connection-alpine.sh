@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 set -exu
 __DIR__=$(
   cd "$(dirname "$0")"
@@ -9,4 +8,3 @@ __DIR__=$(
 cd ${__DIR__}
 
 docker exec -it alpine-dev sh
-

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -exu
 __DIR__=$(
@@ -30,35 +30,19 @@ while [ $# -gt 0 ]; do
   case "$1" in
   --os)
     OS="$2"
-      ;;
-  --mirror)
-    MIRROR="$2"
     ;;
   esac
   shift $(($# > 0 ? 1 : 0))
 done
 
-
-
 case "$OS" in
-    rocky)
-      IMAGE=rockylinux:9
-      case "$MIRROR" in
-            china | openatom)
-              IMAGE="hub.atomgit.com/library/rockylinux:9"
-              ;;
-      esac
-      ;;
-    alma)
-      IMAGE=almalinux:9
-      case "$MIRROR" in
-            china | openatom)
-              IMAGE="hub.atomgit.com/library/almalinux:9"
-              ;;
-      esac
-      ;;
+rocky)
+  IMAGE=rockylinux:9
+  ;;
+alma)
+  IMAGE=almalinux:9
+  ;;
 esac
-
 
 cd ${__DIR__}
 docker run --rm --name rhel-dev -d -v ${__PROJECT__}:/work -w /work $IMAGE tail -f /dev/null
