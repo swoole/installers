@@ -116,9 +116,13 @@ done
 
 case "$MIRROR" in
 china)
+  # auto sync swoole source code
+  # https://github.com/jingjingxyk/auto-push-to-gitee/blob/main/.github/workflows/swoole-src-push-to-gitee.yml
   SWOOLE_SRC="https://gitee.com/swoole/swoole.git"
+  SWOOLE_SRC="https://gitee.com/jingjingxyk/swoole-src.git"
   PHP_SRC="https://gitee.com/mirrors/php-src.git"
   PHPY_SRC='https://gitee.com/swoole/phpy.git'
+  PHPY_SRC='https://gitee.com/jingjingxyk/phpy.git'
   ;;
 *) ;;
 esac
